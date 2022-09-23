@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "id": "moonphaseinfo",
-  "version": "1.0",
+  "version": "${version}",
 
   "name": "Moon Phase Info",
   "description": "Displays info about the current phase of the moon in-game.",
@@ -18,19 +18,12 @@
 
   "environment": "client",
   "entrypoints": {
-    "client": ["com.paradoxical.moonphaseinfo.MoonPhaseInfoMod"]
+    "client": ["com.paradoxical.moonphaseinfo.MoonPhaseInfo"]
   },
-  "mixins": [
-    "moonphaseinfo.mixins.json"
-  ],
 
   "depends": {
-    "fabricloader": ">=0.7.4",
+    "fabricloader": ">=0.14.9",
     "fabric": "*",
-    "minecraft": "1.15.x"
-  },
-
-  "custom": {
-    "modmenu:clientsideOnly": true
+    "minecraft": ">=1.19.2"
   }
 }
