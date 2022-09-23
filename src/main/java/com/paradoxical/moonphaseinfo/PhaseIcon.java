@@ -9,7 +9,7 @@ import net.minecraft.util.Identifier;
 
 public class PhaseIcon extends DrawableHelper {
     private static final Identifier BACKGROUND = new Identifier("textures/gui/container/inventory.png");
-    private static final Identifier ICONS = new Identifier(MoonPhaseInfoMod.MOD_ID, "textures/environment/moon_phases_icons.png");
+    private static final Identifier ICONS = new Identifier(MoonPhaseInfo.MOD_ID, "textures/environment/moon_phases_icons.png");
 
     private static final Formatting[] FULLNESS_COLOR = new Formatting[]
             {Formatting.RED, Formatting.GOLD, Formatting.YELLOW, Formatting.GREEN, Formatting.DARK_GREEN};
@@ -17,18 +17,48 @@ public class PhaseIcon extends DrawableHelper {
     void drawPhaseIcon(MatrixStack matrixStack, float delta) {
         MinecraftClient mc = MinecraftClient.getInstance();
         int windowWidth = mc.getWindow().getScaledWidth();
+        int windowHeight = mc.getWindow().getScaledHeight();
+
+        int baseX, baseY;
+        switch (Config.loc) {
+            case 0:
+                baseX = 30;
+                baseY = 1;
+                break;
+            case 1:
+                baseX = windowWidth / 2;
+                baseY = 1;
+                break;
+            case 2:
+                if (Config.detailedMode) baseX = windowWidth - 78;
+                else baseX = windowWidth - 30;
+                baseY = 1;
+                break;
+            case 3:
+                baseX = windowWidth / 2;
+                baseY = windowHeight - 30;
+                break;
+            case 4:
+                if (Config.detailedMode) baseX = windowWidth - 78;
+                else baseX = windowWidth - 30;
+                baseY = windowHeight - 30;
+                break;
+            default:
+                baseX = 30;
+                baseY = 1;
+        }
 
         int oldShaderTexture = RenderSystem.getShaderTexture(0);
 
-        RenderSystem.setShaderColor(1,1,1,1);
+        RenderSystem.setShaderColor(1, 1, 1, 1);
         RenderSystem.setShaderTexture(0, BACKGROUND);
         int a = 24;
-        int x = windowWidth / 2 - a - 1;
-        int y = 1;
+        int x = baseX - a - 1;
+        int y = baseY;
         drawTexture(matrixStack, x, y, 141, 166, a, a);
 
         RenderSystem.enableBlend();
-        RenderSystem.setShaderColor(1,1,1,1);
+        RenderSystem.setShaderColor(1, 1, 1, 1);
         RenderSystem.setShaderTexture(0, ICONS);
 
         int a2 = 18;
@@ -42,20 +72,22 @@ public class PhaseIcon extends DrawableHelper {
         drawTexture(matrixStack, x, y, this.getZOffset(), (float) u, (float) v, a2, a2, 72, 36);
         RenderSystem.disableBlend();
 
-        //fullness
-        int sizePercent = (int) (mc.world.getMoonSize() * 100f);
-        mc.textRenderer.drawWithShadow(matrixStack, String.format("%s%d%%%s",
-                        FULLNESS_COLOR[sizePercent / 25],
-                        sizePercent,
-                        phase <= 3 ? Formatting.RED + "↓" : Formatting.DARK_GREEN + "↑"),
-                windowWidth / 2 + 1, 5, 0xffffff);
+        if (Config.detailedMode) {
+            //fullness
+            int sizePercent = (int) (mc.world.getMoonSize() * 100f);
+            mc.textRenderer.drawWithShadow(matrixStack, String.format("%s%d%%%s",
+                            FULLNESS_COLOR[sizePercent / 25],
+                            sizePercent,
+                            phase <= 3 ? Formatting.RED + "↓" : Formatting.DARK_GREEN + "↑"),
+                    baseX + 1, baseY + 4, 0xffffff);
 
-        //time left
-        long daySecondsLeft = (24000 - mc.world.getTimeOfDay() % 24000) / 20;
-        long dayMinutesLeft = daySecondsLeft / 60;
-        boolean atLeast60s = daySecondsLeft >= 60;
-        mc.textRenderer.drawWithShadow(matrixStack, atLeast60s ? dayMinutesLeft + "min" : daySecondsLeft + "s",
-                windowWidth / 2 + 1, 5 + mc.textRenderer.fontHeight, Formatting.DARK_AQUA.getColorValue());
+            //time left
+            long daySecondsLeft = (24000 - mc.world.getTimeOfDay() % 24000) / 20;
+            long dayMinutesLeft = daySecondsLeft / 60;
+            boolean atLeast60s = daySecondsLeft >= 60;
+            mc.textRenderer.drawWithShadow(matrixStack, atLeast60s ? dayMinutesLeft + "min" : daySecondsLeft + "s",
+                    baseX + 1, baseY + 4 + mc.textRenderer.fontHeight, Formatting.DARK_AQUA.getColorValue());
+        }
 
         RenderSystem.setShaderTexture(0, oldShaderTexture);
     }
